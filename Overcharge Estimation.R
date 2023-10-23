@@ -43,11 +43,13 @@ reg1.2 = lm(price~cartel + cost)
 reg1.2
 
 #Regression using categorical variables only
+cartel = rep(0, 10000)
+cartel[1:5000] = 1
 OC = 0.3 #Overcharge
 OC_cost = 0.4 #Cost unusual delta on a small subset
 Pass_on = 0.2 #cost pass on rate
 cost_ = rep(1, 10000)
-cost_[7500: 8500] = 1 + OC_cost
+cost_[6000: 8500] = 1 + OC_cost
 #price generation
 price = Base_price + OC * cartel + Pass_on * cost_+eta
 reg2.1 = lm(price~cartel)
@@ -55,16 +57,18 @@ reg2.1
 
 reg2.2 = lm(price~cartel + cost_)
 reg2.2
-plot(price, type = "l", lwd = 3, col = "brown1", ylim = c(1,2.5), xlab = "Time",
+
+plot(price, type = "l", lwd = 3, col = "brown1", ylim = c(0,2.5), xlab = "Time",
      ylab ="log(value)")
 lines(cost_, lwd = 3, col  = "cornflowerblue")
-abline(v = 7000, lwd = 2, lty = 2, col = "lightgrey")
+abline(v = 5000, lwd = 2, lty = 3, col = "lightgrey")
 legend("topleft", legend=c("Price", "Cost"),
        col=c("brown1", "cornflowerblue"), cex=1.2,lty = c(1,1),lwd = c(2,2),
        box.lty=1, box.lwd=2)
-textcartel = rbind(c(5500, 2.2), c(8500, 2.2))
+textcartel = rbind(c(3500, 0.5), c(7000, 0.5))
 rownames(textcartel) = c("Cartel","No cartel")
 text(textcartel, rownames(textcartel), cex = 1.3)
+
 
 
 # Graph of the above regression
@@ -72,19 +76,19 @@ text(textcartel, rownames(textcartel), cex = 1.3)
 e1 = rep(0, 10000)
 e1[c(-1, -10000)]=1
 e2 = rep(0, 10000)
-e2[7500: 8500] = 1
+e2[6000: 8500] = 1
 e3 = cartel
 e3[1] = 0 
 
 
-plot(price, type = "l", lwd = 3, col = "brown1", ylim = c(0,2.5), xlab = "Time", ylab ="log(value)")
+plot(price, type = "l", lwd = 2, col = "brown1", ylim = c(0,2.5), xlab = "Time", ylab = "")
 lines(e1, lwd = 3, col = "aquamarine3")
 lines(e2, lwd = 3, col  = "cornflowerblue")
-lines(e3, lwd = 3, col  = "black", lty = 2262)
-abline(v = 7000, lwd = 2, lty = 3, col  = "lightgrey")
-legend("topleft", legend=c("Price","e1","e2","e3"),
+lines(e3, lwd = 2, col  = "black", lty = 2262)
+abline(v = 5000, lwd = 2, lty = 3, col  = "lightgrey")
+legend("topright", legend=c("Price","e1","e2","e3"),
        col=c("brown1", "aquamarine3","cornflowerblue","black"), cex=1.2,lty = c(1,1,1,2262),lwd = c(2,2,2,2),
-       box.lty=1, box.lwd=2)
+       box.lty=1, box.lwd=2, ncol = 2)
 
 dev.off()
 
