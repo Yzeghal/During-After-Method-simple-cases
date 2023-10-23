@@ -2,9 +2,8 @@ library(MASS)  #mvnorm
 library(stats) #summarise regressions with asymptotic sd estimators (non heteroscedastic robust, use sandwich library for that)
 library(matrixcalc)  # Used for matrix inverse
 library (matlib)
-
-
-
+library(rgl)#usedfor 3d representation
+source("C:/Users/tayoy/Documents/GitHub/OLS-Illustrations/Projections.R")
 
 
 #Generating some random variable that will help building variables
@@ -91,5 +90,44 @@ legend("topright", legend=c("Price","e1","e2","e3"),
        box.lty=1, box.lwd=2, ncol = 2)
 
 dev.off()
+
+angle = acos(cor(cost_,cartel))
+basis = rbind(c(-1,0,0), c(0,0,1))
+cart = c(0,1,0)
+
+coor2 = cos(angle)
+coor1 = - sin(angle)
+cst = c(coor1, coor2, 0)
+prc = c(0.2*cst + 0.3*cart + 0.3* basis[2,])
+prc = prc/norm(prc, type = "2")
+prc = matrix(prc, nrow = 1)
+rownames(prc)= "Price"
+
+
+vec = rbind(cart, cst)
+rownames(vec) = c("Cartel", "Cost")
+close3d()
+open3d()
+planes3d(0, 0, 1, 0, col="cornflowerblue", alpha=0.4)
+vectors3d(basis, col = "black")
+vectors3d(vec, col = "blue4", lwd = 2)
+vectors3d(prc, col = "red", lwd = 2)
+pointfall = cbind(c(1,0,0),c(0,1,0)) %*% coefs(t(prc), cbind(c(1,0,0),c(0,1,0)))
+first_proj =  matrix(c(0,1,0), nrow = 3) %*%coefs(t(prc), matrix(c(0,1,0), nrow = 3))
+
+real_cart_coef = coefs(matrix(prc),cbind(cart, cst))[1]
+
+segments3d(t(cbind(pointfall,first_proj)), lwd = 2, color = "gold")
+segments3d(t(cbind(pointfall,t(prc))), lwd = 2, col = "red")
+segments3d(t(cbind(pointfall,c(0,0,0))), lwd = 2, col = "red")
+segments3d(t(cbind(pointfall,real_cart_coef*c(0,1,0))), lwd = 2, col = "springgreen2")
+corner(c(0,0,0),as.vector(pointfall),as.vector(prc), col = "red", lwd = 2)
+corner(c(0,0,0),as.vector(first_proj),as.vector(pointfall), col = "gold", lwd = 2)
+points3d(real_cart_coef*c(0,1,0), size = 20, color= "green3", pch = 2)
+points3d(as.vector(first_proj), size = 20, color= "gold2", pch = 5)
+text3d(real_cart_coef*c(0,1,0)+c(0.6,0,0.05) , texts="Unbiased coefficient", color= "green4", )
+text3d(as.vector(first_proj)+c(0.6,0,0.05) , texts="Biased coefficient", color= "yellow4" )
+light3d(0,0)
+close3d()
 
 
