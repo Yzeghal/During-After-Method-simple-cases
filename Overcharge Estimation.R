@@ -200,7 +200,6 @@ cor(eta0, PxtG) #G is more efficient in reality
 cor(etaEconomist,PxtG) # Than in the expected case of uniform overcharge
 
 # What if G=1 is not included in T=1
-
 G = rep(0, 10000)
 G[3500:4500] = 1
 G[6000:9000] = 1
@@ -208,11 +207,12 @@ OC_specificG = 0.6 # overcharge when G=1 in reality
 OC_specfifcNoG= 0.3
 
 price3 = Base_price + OC_specificG*cartel*G + OC_specfifcNoG* cartel * (1-G) +P_increase*G
+lm(price3~cartel+ G)
+#plot
 plot(price3, type = "l", lwd = 3, col = "brown1", ylim = c(0,2.5), xlab = "Time",
      ylab ="log(value)")
 lines(G, lwd = 2, col  = "black", lty = 3)
 
-lm(price3~cartel+ G)
 
 abline(v = 5000, lwd = 2, lty = 3, col = "lightgrey")
 legend("topleft", legend=c("Price","Dummy G"),
@@ -221,7 +221,34 @@ legend("topleft", legend=c("Price","Dummy G"),
 textcartel = rbind(c(2000, 0.5), c(8000, 0.5))
 rownames(textcartel) = c("Cartel","No cartel")
 text(textcartel, rownames(textcartel), cex = 1.3)
-arrows(6000, 1.5, 9000, 1.5, col = "cornflowerblue", length =0.1, lwd = 2 )
-arrows(9000, 1.5, 6000, 1.5, col = "cornflowerblue", length =0.1, lwd = 2 )
-text(7500, 1.7, "Interval where G has an effect\nwithout overcharge",col = "cornflowerblue")
+arrows(6000, 1.5, 9000, 1.5, col = "dodgerblue3", length =0.1, lwd = 2 )
+arrows(9000, 1.5, 6000, 1.5, col = "dodgerblue3", length =0.1, lwd = 2 )
+text(7500, 1.7, "Interval with variable size\n to have a more balanced G",col = "dodgerblue3")
 dev.off()
+
+#Variation of coefs with P(G=1|T=0)
+gammas = rep(0,81)
+alphas = rep(0,81)
+p = seq(0,0.8,0.01)
+for (i in 1:81){
+  proba = p[i]
+  G = rep(0, 10000)
+  G[3500:4500] = 1
+  G[6000:(6000+proba*5000)] = 1
+  price3 = Base_price + OC_specificG*cartel*G + OC_specfifcNoG* cartel * (1-G) +P_increase*G
+  coefs = lm(price3~cartel+ G)$coefficients
+  gammas[i] = coefs[2]
+  alphas[i] = coefs[3]
+}
+plot(p,alphas, lwd =2, col = "dodgerblue3", xlab = "P(G=1|T=0)",ylim = c(0.05,0.5),
+     ylab ="Coefficient values")
+points(p,gammas, lwd =2, col = "brown3", xlab = "P(G=1|T=0)",
+     ylab ="Coefficients value")
+abline(h = 0.36,  col = "brown3",lty = 2 , lwd = 2)
+abline(h = 0.1,  col = "dodgerblue3",lty = 2, lwd = 2 )
+text(0.6, 0.38, "Actual Overcharge 0.36")
+text(0.6, 0.12, "Actual coef of G")
+legend("topleft", legend=c("Gamma (Overcharge coef)","Alpha (G coef)"),
+       col=c("brown3", "dodgerblue3"), cex=1.2,pch = c(1,1),
+       box.lty=1, box.lwd=2)
+
