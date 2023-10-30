@@ -200,26 +200,28 @@ cor(eta0, PxtG) #G is more efficient in reality
 cor(etaEconomist,PxtG) # Than in the expected case of uniform overcharge
 
 # What if G=1 is not included in T=1
-G[6000:10000] = 1
-cost_ = rep(0, 10000)
-cost_[cartel==1] =  OC_cost 
-cost_[G==1&cartel==1] = Cost_inflationG + OC_cost
-cost_[G==1&cartel==0] = Cost_inflationG
-cost_=cost_ #eta is directly attributed to cost for collinearity reasons 
-price3 = Base_price + OC_specfifcNoG * cartel * (1-G) +OC_specificG * cartel *G + Pass_on * cost_ + P_increase *G
-lm(price3~cartel + cost_+G)
 
+G = rep(0, 10000)
+G[3500:4500] = 1
+G[6000:9000] = 1
+OC_specificG = 0.6 # overcharge when G=1 in reality
+OC_specfifcNoG= 0.3
 
+price3 = Base_price + OC_specificG*cartel*G + OC_specfifcNoG* cartel * (1-G) +P_increase*G
 plot(price3, type = "l", lwd = 3, col = "brown1", ylim = c(0,2.5), xlab = "Time",
      ylab ="log(value)")
-lines(cost_, lwd = 3, col  = "cornflowerblue")
 lines(G, lwd = 2, col  = "black", lty = 3)
 
+lm(price3~cartel+ G)
 
 abline(v = 5000, lwd = 2, lty = 3, col = "lightgrey")
-legend("topleft", legend=c("Price", "Cost","Dummy G"),
-       col=c("brown1", "cornflowerblue", "black"), cex=1.2,lty = c(1,1,3),lwd = c(2,2,2),
+legend("topleft", legend=c("Price","Dummy G"),
+       col=c("brown1", "black"), cex=1.2,lty = c(1,3),lwd = c(2,2),
        box.lty=1, box.lwd=2)
 textcartel = rbind(c(2000, 0.5), c(8000, 0.5))
 rownames(textcartel) = c("Cartel","No cartel")
 text(textcartel, rownames(textcartel), cex = 1.3)
+arrows(6000, 1.5, 9000, 1.5, col = "cornflowerblue", length =0.1, lwd = 2 )
+arrows(9000, 1.5, 6000, 1.5, col = "cornflowerblue", length =0.1, lwd = 2 )
+text(7500, 1.7, "Interval where G has an effect\nwithout overcharge",col = "cornflowerblue")
+dev.off()
