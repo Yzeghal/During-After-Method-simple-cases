@@ -252,3 +252,43 @@ legend("topleft", legend=c("Gamma (Overcharge coef)","Alpha (G coef)"),
        col=c("brown3", "dodgerblue3"), cex=1.2,pch = c(1,1),
        box.lty=1, box.lwd=2)
 
+# Compensation illustration 
+
+t = c(rep(10, 5000), rep(0,5000))
+X = rep(0,10000)
+X[2500:3500] = 1
+X[7000:8000] = 1
+spec_oc =  5*eta +3* sin(1:10000 /10000*2*pi)+t 
+smooth_oc  = 3*sin(1:10000 /10000*2*pi)+t
+m=mean(spec_oc[1:5000])
+m2 = mean(spec_oc[5000:10000])
+spec_oc = spec_oc - m2 *(10-t)/10
+smooth_oc  = smooth_oc - m2 *(10-t)/10
+avg_OC = rep(m,5000)
+
+plot(spec_oc, type = "l", lwd =3, col = "dodgerblue3", xlab = "Time",ylim = c(-5, 15),
+     ylab ="Overcharge")
+
+polygon(x = c(seq(2500,3500,100),3500, 2500),
+        y = c(smooth_oc[seq(2500,3500,100)],m,m),
+        col = "firebrick2")
+polygon(x = c(seq(7000,8000,50), 8000, 7000), 
+        y = c(smooth_oc[seq(7000,8000, 50)],0,0),
+        col = "firebrick2", lty = 3, lwd = 2, cex = 0.2)
+lines(spec_oc, type = "l", lwd =3, col = "dodgerblue3", xlab = "Time",ylim = c(-5, 15),
+     ylab ="Overcharge")
+lines(avg_OC,lwd = 3, lty= 2)
+
+lines(X, lwd = 2, col = "grey24")
+abline(v = 5000,  col = "grey",lty = 3, lwd = 2 )
+abline(h=0,col = "lightgrey",lty = 3, lwd = 2 )
+textcartel = rbind(c(2500, -3), c(7700, -3))
+
+rownames(textcartel) = c("Cartel","No cartel")
+text(textcartel, rownames(textcartel), cex = 1.3)
+legend("topright", legend=c("Overcharge", "Dummy X", "AVG overcharge\nwhen T=1", "Balanced areas"),
+       col=c("dodgerblue3","grey24","black","red"), cex = 1 ,lty = c(1,1,2,NA),
+       lwd = c(2,2,2,2),pch = c(NA,NA,NA,15),
+       box.lty=1, box.lwd=2)
+
+
